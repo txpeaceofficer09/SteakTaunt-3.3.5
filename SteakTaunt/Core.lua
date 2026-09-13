@@ -25,7 +25,7 @@ local function Announce(msg)
 		channel = "SAY"
 	end
 
-	SendChatMessage(msg, channel)
+	SendChatMessage(msg, nil, nil, channel)
 end
 
 f:SetScript("OnEvent", function(self, event, ...)
@@ -42,10 +42,12 @@ f:SetScript("OnEvent", function(self, event, ...)
 		msg = string.format("Taunt FAILED on %s (%s: %s)", dstName or "?", spellName, missType or "unknown")
 	end
 
-	if srcName == UnitName("player") then
-		Announce(msg)
-	else
-		print("|cffff8800[SteakTaunt]:|r "..msg)
+	if msg ~= nil then
+		if srcName == UnitName("player") then
+			Announce(msg)
+		else
+			print("|cffff8800[SteakTaunt]:|r "..msg)
+		end
 	end
 end)
 
