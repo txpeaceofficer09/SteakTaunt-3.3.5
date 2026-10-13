@@ -46,7 +46,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 		if srcName == UnitName("player") then
 			Announce(msg)
 		else
-			print("|cffff8800[SteakTaunt]:|r "..msg)
+			print(("|cffff8800[SteakTaunt]:|r (%s) %s"):format(srcName, msg))
 		end
 	end
 end)
