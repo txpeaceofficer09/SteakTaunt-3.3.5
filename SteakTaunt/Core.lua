@@ -55,7 +55,24 @@ SteakTaunt = {
 			end
 		end
 
-		return false
+		return "none"
+	end,
+	GetUnitByGUID = function(self, guid)
+		if UnitGUID("player") == guid then return "player" end
+
+		if GetNumRaidMembers() > 0 then
+			for i=1,40 do
+				if not UnitGUID("raid"..i) then break end
+				if UnitGUID("raid"..i) == guid then return "raid"..i end
+			end
+		elseif GetNumPartyMembers() > 0 then
+			for i=1,4 do
+				if not UnitGUID("party"..i) then break end
+				if UnitGUID("party"..i) == guid then return "party"..i end
+			end
+		end
+
+		return "none"
 	end,
 	IsInBattleground = function(self)
 		local _, instanceType = GetInstanceInfo()
@@ -128,15 +145,20 @@ SteakTaunt = {
 			if srcName == UnitName("player") then
 				self:Announce(msg)
 			elseif self:IsPet(srcGUID) then
-				local owner = self:GetOwner(srcGUID)
+				if ( GetNumRaidMembers() > 0 or GetNumPartyMembers() > 0 ) and not self:IsInBattleground() then
+					local owner = self:GetOwner(srcGUID)
 
-				if owner then
-					self:Announce(("%s's pet %s %s"):format(owner, srcName, msg))
+					if owner and owner ~= "none" then
+						self:Announce(("%s's pet %s %s"):format(owner, srcName, msg))
+					end
 				end
 			else
-				local tank, healer, damager = UnitGroupRolesAssigned(self:GetUnitByName(srcName))
+				local unit = self:GetUnitByGUID(srcGUID)
+				if not unit or unit == "none" then return end
 
-				if not tank and ( healer or damager ) then
+				local role = self:UnitGroupRolesAssigned(unit)
+
+				if role ~= "tank" then
 					self:Announce("["..srcName.."]: "..msg)
 				else
 					print(("|cffff8800[SteakTaunt]:|r (%s) %s"):format(srcName, msg))
